@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function NeuTurnierPage() {
   const router = useRouter();
@@ -29,19 +29,23 @@ export default function NeuTurnierPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
-      <Card>
-        <CardHeader>
-          <CardTitle>Neues Turnier erstellen</CardTitle>
+    <div className="mx-auto max-w-lg">
+      <Card className="relative overflow-hidden shadow-lg">
+        <div className="absolute inset-x-0 top-0 h-1.5 bg-primary" />
+        <CardHeader className="pt-8 text-center">
+          <CardTitle className="text-2xl">Neues Turnier erstellen</CardTitle>
+          <CardDescription>
+            Erstelle ein neues Turnier und lade Mannschaften ein.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-2">
               <Label htmlFor="name">Turniername</Label>
-              <Input id="name" name="name" required />
+              <Input id="name" name="name" placeholder="z.B. Sommerturnier 2026" required />
             </div>
             <div className="flex gap-4">
-              <div className="flex-1">
+              <div className="flex-1 space-y-2">
                 <Label htmlFor="jahr">Jahr</Label>
                 <Input
                   id="jahr"
@@ -51,7 +55,7 @@ export default function NeuTurnierPage() {
                   required
                 />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 space-y-2">
                 <Label htmlFor="monat">Monat</Label>
                 <Input
                   id="monat"
@@ -64,12 +68,19 @@ export default function NeuTurnierPage() {
                 />
               </div>
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="passwort">Admin-Passwort</Label>
-              <Input id="passwort" name="passwort" type="password" required />
+              <Input id="passwort" name="passwort" type="password" placeholder="Sicheres Passwort wählen" required />
+              <p className="text-xs text-muted-foreground">
+                Dieses Passwort wird für den Admin-Zugang benötigt.
+              </p>
             </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" disabled={loading} className="w-full">
+            {error && (
+              <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                {error}
+              </div>
+            )}
+            <Button type="submit" disabled={loading} className="w-full" size="lg">
               {loading ? "Erstelle..." : "Turnier erstellen"}
             </Button>
           </form>

@@ -16,7 +16,6 @@ import {
 import { Mannschaft, Gruppe, GruppenMannschaft, Spiel } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -27,7 +26,6 @@ export function AdminPanel({ turnierId }: { turnierId: string }) {
   const [gruppenMannschaften, setGruppenMannschaften] = useState<GruppenMannschaft[]>([]);
   const [spiele, setSpiele] = useState<Spiel[]>([]);
 
-  // Form states
   const [teamName, setTeamName] = useState("");
   const [kapitaenName, setKapitaenName] = useState("");
   const [kapitaenMobile, setKapitaenMobile] = useState("");
@@ -116,9 +114,15 @@ export function AdminPanel({ turnierId }: { turnierId: string }) {
   return (
     <div className="space-y-8">
       {/* Mannschaften */}
-      <Card>
+      <Card className="relative overflow-hidden">
+        <div className="absolute inset-y-0 left-0 w-1 bg-primary" />
         <CardHeader>
-          <CardTitle>Mannschaften</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Mannschaften
+            <Badge variant="secondary" className="text-xs font-normal">
+              {mannschaften.length}
+            </Badge>
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <form onSubmit={handleAddTeam} className="flex flex-wrap gap-2">
@@ -127,51 +131,68 @@ export function AdminPanel({ turnierId }: { turnierId: string }) {
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
               required
-              className="w-40"
+              className="w-44"
             />
             <Input
               placeholder="Kapitän"
               value={kapitaenName}
               onChange={(e) => setKapitaenName(e.target.value)}
-              className="w-36"
+              className="w-40"
             />
             <Input
               placeholder="Mobil"
               value={kapitaenMobile}
               onChange={(e) => setKapitaenMobile(e.target.value)}
-              className="w-36"
+              className="w-40"
             />
             <Button type="submit">Hinzufügen</Button>
           </form>
-          <div className="flex flex-wrap gap-2">
-            {mannschaften.map((m) => (
-              <Badge key={m.id} variant="outline" className="gap-1 py-1">
-                {m.team_name}
-                <button
-                  onClick={() => handleDeleteTeam(m.id)}
-                  className="ml-1 text-destructive hover:text-destructive/80"
+          {mannschaften.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {mannschaften.map((m) => (
+                <Badge
+                  key={m.id}
+                  variant="outline"
+                  className="gap-1.5 py-1.5 px-3 text-sm"
                 >
-                  ×
-                </button>
-              </Badge>
-            ))}
-          </div>
+                  {m.team_name}
+                  {m.kapitaen_name && (
+                    <span className="text-muted-foreground">
+                      ({m.kapitaen_name})
+                    </span>
+                  )}
+                  <button
+                    onClick={() => handleDeleteTeam(m.id)}
+                    className="ml-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-xs text-destructive hover:bg-destructive/10"
+                  >
+                    ×
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Gruppen */}
-      <Card>
+      <Card className="relative overflow-hidden">
+        <div className="absolute inset-y-0 left-0 w-1 bg-primary" />
         <CardHeader>
-          <CardTitle>Gruppen</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Gruppen
+            <Badge variant="secondary" className="text-xs font-normal">
+              {gruppen.length}
+            </Badge>
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
           <form onSubmit={handleAddGruppe} className="flex gap-2">
             <Input
-              placeholder="Gruppenname"
+              placeholder="z.B. Gruppe A"
               value={gruppeName}
               onChange={(e) => setGruppeName(e.target.value)}
               required
-              className="w-48"
+              className="w-52"
             />
             <Button type="submit">Gruppe erstellen</Button>
           </form>
@@ -188,10 +209,13 @@ export function AdminPanel({ turnierId }: { turnierId: string }) {
             );
 
             return (
-              <Card key={gruppe.id}>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-base">
+              <Card key={gruppe.id} className="shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between pb-3">
+                  <CardTitle className="text-base font-semibold">
                     {gruppe.gruppe_name}
+                    <span className="ml-2 text-xs font-normal text-muted-foreground">
+                      {zugeordnet.length} Teams
+                    </span>
                   </CardTitle>
                   <div className="flex gap-2">
                     <Button
@@ -210,38 +234,41 @@ export function AdminPanel({ turnierId }: { turnierId: string }) {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-4">
                   {/* Zugeordnete Mannschaften */}
-                  <div className="flex flex-wrap gap-1">
-                    {zugeordnet.map((mid) => {
-                      const m = mannschaftMap.get(mid);
-                      return (
-                        <Badge key={mid} className="gap-1">
-                          {m?.team_name}
-                          <button
-                            onClick={() =>
-                              handleRemoveFromGroup(gruppe.id, mid)
-                            }
-                            className="ml-1 hover:opacity-70"
-                          >
-                            ×
-                          </button>
-                        </Badge>
-                      );
-                    })}
-                  </div>
+                  {zugeordnet.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {zugeordnet.map((mid) => {
+                        const m = mannschaftMap.get(mid);
+                        return (
+                          <Badge key={mid} className="gap-1 py-1">
+                            {m?.team_name}
+                            <button
+                              onClick={() =>
+                                handleRemoveFromGroup(gruppe.id, mid)
+                              }
+                              className="ml-1 inline-flex h-3.5 w-3.5 items-center justify-center rounded-full text-xs hover:opacity-70"
+                            >
+                              ×
+                            </button>
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  )}
 
                   {/* Hinzufügen */}
                   {nichtZugeordnet.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      <span className="text-sm text-muted-foreground mr-1 self-center">
+                    <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-muted/50 p-2">
+                      <span className="mr-1 text-xs font-medium text-muted-foreground">
                         Hinzufügen:
                       </span>
                       {nichtZugeordnet.map((m) => (
                         <Button
                           key={m.id}
-                          variant="ghost"
+                          variant="secondary"
                           size="sm"
+                          className="h-7 text-xs"
                           onClick={() =>
                             handleAddToGroup(gruppe.id, m.id)
                           }
@@ -255,16 +282,20 @@ export function AdminPanel({ turnierId }: { turnierId: string }) {
                   {/* Spiele / Ergebnisse */}
                   {gruppeSpiele.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="text-sm font-semibold">Ergebnisse eintragen</h4>
-                      {gruppeSpiele.map((s) => (
-                        <SpielErgebnis
-                          key={s.id}
-                          spiel={s}
-                          teamA={mannschaftMap.get(s.team_a_id)?.team_name || "?"}
-                          teamB={mannschaftMap.get(s.team_b_id)?.team_name || "?"}
-                          onSave={handleErgebnis}
-                        />
-                      ))}
+                      <h4 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                        Ergebnisse eintragen
+                      </h4>
+                      <div className="space-y-2">
+                        {gruppeSpiele.map((s) => (
+                          <SpielErgebnis
+                            key={s.id}
+                            spiel={s}
+                            teamA={mannschaftMap.get(s.team_a_id)?.team_name || "?"}
+                            teamB={mannschaftMap.get(s.team_b_id)?.team_name || "?"}
+                            onSave={handleErgebnis}
+                          />
+                        ))}
+                      </div>
                     </div>
                   )}
                 </CardContent>
@@ -295,34 +326,41 @@ function SpielErgebnis({
     spiel.score_team_b?.toString() || ""
   );
 
+  const beendet = spiel.status === "beendet";
+
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <span className="flex-1 text-right">{teamA}</span>
+    <div
+      className={`flex items-center gap-2 rounded-lg border p-3 text-sm transition-colors ${
+        beendet ? "bg-primary/5 border-primary/20" : "bg-card"
+      }`}
+    >
+      <span className="flex-1 text-right font-medium">{teamA}</span>
       <Input
         type="number"
         min={0}
         value={scoreA}
         onChange={(e) => setScoreA(e.target.value)}
-        className="w-16 text-center"
+        className="w-16 text-center font-mono font-bold"
       />
-      <span>:</span>
+      <span className="text-muted-foreground font-bold">:</span>
       <Input
         type="number"
         min={0}
         value={scoreB}
         onChange={(e) => setScoreB(e.target.value)}
-        className="w-16 text-center"
+        className="w-16 text-center font-mono font-bold"
       />
-      <span className="flex-1">{teamB}</span>
+      <span className="flex-1 font-medium">{teamB}</span>
       <Button
         size="sm"
-        variant="outline"
         onClick={() => onSave(spiel.id, scoreA, scoreB)}
       >
         Speichern
       </Button>
-      {spiel.status === "beendet" && (
-        <Badge variant="default">Beendet</Badge>
+      {beendet && (
+        <Badge variant="default" className="ml-1">
+          Beendet
+        </Badge>
       )}
     </div>
   );
